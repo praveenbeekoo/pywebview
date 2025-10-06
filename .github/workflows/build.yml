@@ -54,7 +54,8 @@ jobs:
           python -m pip install --upgrade pip
           # Install GTK for webview support
           choco install -y mingw gtk3
-          pip install --upgrade pyinstaller pywebview pywin32 pythonnet clr-loader
+          # Install Python dependencies from requirements.txt
+          pip install -r requirements.txt
 
       - name: 🏗 Build executable with PyInstaller
         working-directory: ${{ github.workspace }}
