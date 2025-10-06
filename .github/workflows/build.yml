@@ -27,17 +27,18 @@ jobs:
 
       - name: 🏗 Build executable with PyInstaller
         working-directory: ${{ github.workspace }}
+        shell: pwsh
         run: |
-          echo "github.workspace=${{ github.workspace }}"
-          echo "Listing repository root to help diagnose missing files"
-          dir "%CD%"
+          Write-Output "github.workspace=${{ github.workspace }}"
+          Write-Output "Listing repository root to help diagnose missing files"
+          Get-ChildItem -Force | Format-List Name,Mode,Length
 
-          echo "--- printer_app.spec contents ---"
-          type "printer_app.spec"
-          echo "--- end spec ---"
+          Write-Output "--- printer_app.spec contents ---"
+          Get-Content -Raw "printer_app.spec"
+          Write-Output "--- end spec ---"
 
-          # Use the absolute path to the spec file so PyInstaller can't miss it
-          pyinstaller "%CD%\\printer_app.spec"
+          # Call pyinstaller with the relative spec path from the repo root
+          pyinstaller "printer_app.spec"
 
       - name: 📁 Upload build artifacts
         uses: actions/upload-artifact@v4
