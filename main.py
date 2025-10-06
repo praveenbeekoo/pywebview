@@ -78,7 +78,7 @@ if __name__ == "__main__":
     try:
         # Load URL from config.properties
         url = load_config()
-        print(f"🔗 Loading Web URL: {url}")
+        print(f"[INFO] Loading Web URL: {url}")
 
         api = PrinterApi()
 
@@ -93,5 +93,5 @@ if __name__ == "__main__":
 
         webview.start()
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"[ERROR] {e}")
         input("Press Enter to exit...")
