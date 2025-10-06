@@ -16,9 +16,14 @@ def resource_path(relative_path: str) -> str:
     """
     if hasattr(sys, "_MEIPASS"):  # When running as a PyInstaller .exe
         base_path = sys._MEIPASS
+        logging.debug(f"Running from PyInstaller bundle. Base path: {base_path}")
     else:
         base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
+        logging.debug(f"Running in development mode. Base path: {base_path}")
+    
+    full_path = os.path.join(base_path, relative_path)
+    logging.debug(f"Resolved resource path: {relative_path} -> {full_path}")
+    return full_path
 
 
 def load_config(path="config.properties") -> str:
@@ -26,20 +31,34 @@ def load_config(path="config.properties") -> str:
     Load web.url from a .properties file.
     Supports simple key=value format without sections.
     """
+    logging.info(f"Loading configuration from: {path}")
     config_path = resource_path(path)
+    logging.debug(f"Resolved config path: {config_path}")
+    
     if not os.path.exists(config_path):
+        logging.error(f"Configuration file not found: {config_path}")
         raise FileNotFoundError(f"Config file not found: {config_path}")
 
-    config = configparser.ConfigParser()
-    config.optionxform = str  # preserve case sensitivity
-    with open(config_path, "r", encoding="utf-8") as f:
-        content = "[DEFAULT]\n" + f.read()
-    config.read_string(content)
-
-    web_url = config["DEFAULT"].get("web.url", "").strip()
-    if not web_url:
-        raise ValueError("Missing 'web.url' entry in config.properties")
-    return web_url
+    try:
+        config = configparser.ConfigParser()
+        config.optionxform = str  # preserve case sensitivity
+        
+        logging.debug("Reading configuration file")
+        with open(config_path, "r", encoding="utf-8") as f:
+            content = "[DEFAULT]\n" + f.read()
+        config.read_string(content)
+        
+        web_url = config["DEFAULT"].get("web.url", "").strip()
+        if not web_url:
+            logging.error("Missing required 'web.url' entry in config file")
+            raise ValueError("Missing 'web.url' entry in config.properties")
+            
+        logging.info(f"Configuration loaded successfully. URL: {web_url[:30]}...")  # Log only first part of URL for privacy
+        return web_url
+        
+    except (configparser.Error, IOError) as e:
+        logging.error(f"Error parsing configuration file: {str(e)}", exc_info=True)
+        raise
 
 
 # ------------------------------
