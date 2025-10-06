@@ -7,7 +7,13 @@
 # or directly:
 #   pyinstaller --onefile --noconsole --icon app.ico --add-data "config.properties;." main.py
 
+import os
+import sys
+
 block_cipher = None
+
+# Path to the VERSIONINFO text file used by PyInstaller. Use repo root at build time.
+version_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'version_info.txt')
 
 a = Analysis(
     ['main.py'],
@@ -46,7 +52,7 @@ exe = EXE(
     runtime_tmpdir=None,
     console=False,              # ✅ hide the console window (GUI only)
     icon='app.ico',             # ✅ your app icon
-    version='1.0.0.0',          # optional version info
+    version=version_file,       # embed version info from version_info.txt
     company_name='Posterita Ltd',  # optional
     product_name='Posterita Printer Utility',
     description='Posterita POS Printer Utility using pywebview',

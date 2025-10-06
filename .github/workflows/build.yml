@@ -26,13 +26,18 @@ jobs:
           pip install pyinstaller pywebview pywin32
 
       - name: 🏗 Build executable with PyInstaller
+        working-directory: ${{ github.workspace }}
         run: |
           echo "github.workspace=${{ github.workspace }}"
           echo "Listing repository root to help diagnose missing files"
-          dir "${{ github.workspace }}"
+          dir "%CD%"
+
+          echo "--- printer_app.spec contents ---"
+          type "printer_app.spec"
+          echo "--- end spec ---"
 
           # Use the absolute path to the spec file so PyInstaller can't miss it
-          pyinstaller "${{ github.workspace }}\\printer_app.spec"
+          pyinstaller "%CD%\\printer_app.spec"
 
       - name: 📁 Upload build artifacts
         uses: actions/upload-artifact@v4
