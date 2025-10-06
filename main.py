@@ -3,6 +3,8 @@ import win32print
 import sys
 import os
 import configparser
+import logging
+from logger_config import setup_logging
 
 # ------------------------------
 # Utility Functions
@@ -49,14 +51,17 @@ class PrinterApi:
         """
         Returns all installed printers and marks the default one.
         """
+        logging.info("Listing available printers")
         printers = [printer[2] for printer in win32print.EnumPrinters(2)]
         default_printer = win32print.GetDefaultPrinter()
+        logging.info(f"Found {len(printers)} printers. Default: {default_printer}")
         return {"printers": printers, "default": default_printer}
 
     def print_text(self, printer_name, text):
         """
         Send raw text directly to the specified printer.
         """
+        logging.info(f"Printing to {printer_name}")
         try:
             handle = win32print.OpenPrinter(printer_name)
             job = win32print.StartDocPrinter(handle, 1, ("Receipt", None, "RAW"))
@@ -65,8 +70,10 @@ class PrinterApi:
             win32print.EndPagePrinter(handle)
             win32print.EndDocPrinter(handle)
             win32print.ClosePrinter(handle)
+            logging.info(f"Successfully printed to {printer_name}")
             return {"status": "success", "message": f"Printed on {printer_name}"}
         except Exception as e:
+            logging.error(f"Print error on {printer_name}: {str(e)}", exc_info=True)
             return {"status": "error", "message": str(e)}
 
 
@@ -76,11 +83,16 @@ class PrinterApi:
 
 if __name__ == "__main__":
     try:
+        # Initialize logging
+        logger = setup_logging()
+        logger.info("Starting Posterita Printer Utility")
+
         # Load URL from config.properties
         url = load_config()
-        print(f"[INFO] Loading Web URL: {url}")
+        logger.info(f"Loading Web URL: {url}")
 
         api = PrinterApi()
+        logger.info("Printer API initialized")
 
         # Create and launch pywebview window
         window = webview.create_window(
@@ -89,11 +101,12 @@ if __name__ == "__main__":
             js_api=api,
             text_select=True  # Allow text selection
         )
+        logger.info("Window created, starting webview")
 
         webview.start(debug=True)
     except Exception as e:
-        print(f"[ERROR] {e}")
+        logging.error(f"Application error: {str(e)}", exc_info=True)
         # Use sys.stdin.readline() instead of input() for PyInstaller compatibility
         import msvcrt
-        print("Press any key to exit...")
+        print("\nPress any key to exit...")
         msvcrt.getch()
