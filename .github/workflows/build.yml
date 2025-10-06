@@ -27,7 +27,12 @@ jobs:
 
       - name: 🏗 Build executable with PyInstaller
         run: |
-          pyinstaller printer_app.spec
+          echo "github.workspace=${{ github.workspace }}"
+          echo "Listing repository root to help diagnose missing files"
+          dir "${{ github.workspace }}"
+
+          # Use the absolute path to the spec file so PyInstaller can't miss it
+          pyinstaller "${{ github.workspace }}\\printer_app.spec"
 
       - name: 📁 Upload build artifacts
         uses: actions/upload-artifact@v4
