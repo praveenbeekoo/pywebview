@@ -9,19 +9,24 @@
 
 import os
 import sys
+from pathlib import Path
 
 block_cipher = None
 
-# Path to the VERSIONINFO text file used by PyInstaller. Use repo root at build time.
-version_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'version_info.txt')
+# Get the current directory (where the spec file is)
+current_dir = Path(__file__).parent.absolute()
+
+# Path to the VERSIONINFO text file used by PyInstaller
+version_file = str(current_dir / 'version_info.txt')
 
 a = Analysis(
-    ['main.py'],
-    pathex=[],
+    [str(current_dir / 'main.py')],
+    pathex=[str(current_dir)],
     binaries=[],
     datas=[
-        ('config.properties', '.'),  # ✅ include your config file
-        ('app.ico', '.'),            # ✅ include your app icon
+        (str(current_dir / 'config.properties'), '.'),  # ✅ include your config file
+        (str(current_dir / 'app.ico'), '.'),           # ✅ include your app icon
+        (str(current_dir / 'version_info.txt'), '.'),  # ✅ include version info
     ],
     hiddenimports=[
         'win32print', 'win32api', 'win32ui',  # ensure pywin32 modules are included
@@ -51,9 +56,9 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,              # ✅ hide the console window (GUI only)
-    icon='app.ico',             # ✅ your app icon
-    version=None,       # embed version info from version_info.txt
-    company_name='Posterita Ltd',  # optional
+    icon=str(current_dir / 'app.ico'),  # ✅ your app icon
+    version=version_file,       # embed version info from version_info.txt
+    company_name='Posterita Ltd',
     product_name='Posterita Printer Utility',
     description='Posterita POS Printer Utility using pywebview',
 )
