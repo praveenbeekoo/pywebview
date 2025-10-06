@@ -87,11 +87,13 @@ if __name__ == "__main__":
             "Posterita Printer Utility",
             url,
             js_api=api,
-            confirm_quit=False,
-            allow_url_access=True
+            text_select=True  # Allow text selection
         )
 
-        webview.start()
+        webview.start(debug=True)
     except Exception as e:
         print(f"[ERROR] {e}")
-        input("Press Enter to exit...")
+        # Use sys.stdin.readline() instead of input() for PyInstaller compatibility
+        import msvcrt
+        print("Press any key to exit...")
+        msvcrt.getch()

@@ -1,5 +1,5 @@
 pyinstaller>=6.3.0
-pywebview>=4.4.1
+pywebview==4.3.3
 pywin32>=306
 pythonnet>=3.0.3
 clr-loader>=0.2.6
