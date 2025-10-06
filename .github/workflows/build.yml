@@ -21,35 +21,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'  # Enable pip caching
 
-      - name: 📝 Create version info
-        run: |
-          $version = Get-Date -Format "yyyy.MM.dd.HHmm"
-          "VSVersionInfo(
-            ffi=FixedFileInfo(
-              filevers=($version.Split('.') -as [int[]]),
-              prodvers=($version.Split('.') -as [int[]]),
-              mask=0x3f,
-              flags=0x0,
-              OS=0x40004,
-              fileType=0x1,
-              subtype=0x0,
-              date=(0, 0)
-            ),
-            kids=[
-              StringFileInfo([StringTable(
-                u'040904B0',
-                [StringStruct(u'CompanyName', u'Posterita Ltd'),
-                 StringStruct(u'FileDescription', u'Posterita POS Printer Utility'),
-                 StringStruct(u'FileVersion', u'$version'),
-                 StringStruct(u'InternalName', u'PosteritaPrinterUtility'),
-                 StringStruct(u'LegalCopyright', u'© Posterita Ltd'),
-                 StringStruct(u'ProductName', u'Posterita Printer Utility'),
-                 StringStruct(u'ProductVersion', u'$version')])]),
-              VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
-            ]
-          )" | Out-File -FilePath "version_info.txt" -Encoding utf8
-
-      - name: 📦 Install dependencies
+      - name:  Install dependencies
         run: |
           python -m pip install --upgrade pip
           # Install GTK for webview support
@@ -80,15 +52,7 @@ jobs:
             Write-Error "Build failed: Executable not found at $exePath"
             exit 1
           }
-          
-          # Check file version info
-          $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
-          if (!$fileVersion) {
-            Write-Error "Build validation failed: No version information found"
-            exit 1
-          }
-          
-          Write-Output "Build validated successfully! Version: $fileVersion"
+          Write-Output "Build validated successfully!"
 
       - name: 📁 Upload build artifacts
         uses: actions/upload-artifact@v4
